@@ -2,11 +2,12 @@ import React, {useCallback} from 'react'
 import {useDropzone} from 'react-dropzone'
 import {firebaseUploadFile} from "../firebaseUploadFile";
 
-export const FileUploadField = () => {
+const FileUploadField = () => {
     const onDrop = useCallback((acceptedFiles: any) => {
+        console.log(acceptedFiles[0])
         firebaseUploadFile(acceptedFiles[0])
-        console.log(acceptedFiles)
     }, [])
+
     const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
 
     return (
@@ -20,3 +21,5 @@ export const FileUploadField = () => {
         </div>
     )
 }
+
+export default FileUploadField

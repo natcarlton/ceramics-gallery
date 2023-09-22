@@ -1,15 +1,12 @@
 import React from 'react';
 import './App.css';
-import {FileUploadField} from "./FileUpload/FileUploadField";
-import {ShowFiles} from "./showFiles";
-
+import FileUploadFieldContainer from "./FileUpload/FileUploadFieldContainer";
 
 function App() {
   return (
     <div className="App">
       HELLO WORLD
-        <FileUploadField />
-        <ShowFiles />
+      <FileUploadFieldContainer />
     </div>
   );
 }
