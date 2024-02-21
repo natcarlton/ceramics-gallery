@@ -1,9 +1,8 @@
-import {ref, uploadBytesResumable, getDownloadURL, getStorage} from "firebase/storage";
-import {firebaseApp} from "./firebaseConfig";
-import storageStore from "./FileUpload/storageStore";
+import {ref, uploadBytesResumable, getDownloadURL} from "firebase/storage";
+import {storage} from "../FirebaseUtils/firebaseConfig";
+import fireUseQueryStore from "../FirebaseUtils/fireUseQueryStore";
+import fileUploadPercentageStore from "../FirebaseUtils/fileUploadPercentageStore";
 
-// const storage = storageStore.getState()
-const storage = getStorage(firebaseApp)
 
 export const firebaseUploadFile = (file: File) => {
 console.log(storage)
@@ -23,6 +22,7 @@ console.log(storage)
             // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
             console.log('Upload is ' + progress + '% done');
+            fileUploadPercentageStore.setState({fileUploadPercentageStore: {percentage: progress}})
             switch (snapshot.state) {
                 case 'paused':
                     console.log('Upload is paused');
@@ -33,13 +33,14 @@ console.log(storage)
             }
         },
         (error) => {
-            console.error("error")
+            console.error("error", error)
         },
         () => {
             // Upload completed successfully, now we can get the download URL
             getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                // fileUploadPercentageStore.setState({fileUploadPercentageStore: {percentage: undefined}})
+                fireUseQueryStore.setState({ fireUseQueryStoreProps: {triggerTime: new Date(Date.now())} })
                 console.log('File available at', downloadURL);
-                storageStore.getState().setStorage(storage)
             });
         }
     );

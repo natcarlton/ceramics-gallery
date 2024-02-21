@@ -1,41 +1,34 @@
-import {ref, getDownloadURL, listAll} from "firebase/storage";
-import {useEffect, useRef, useState} from "react";
-import storageStore from "./storageStore";
-
+import {useEffect, useState} from "react";
+import {useQuery} from "react-query";
+import {loadImages} from "../FirebaseUtils/firebaseUtils";
+import fireUseQueryStore from "../FirebaseUtils/fireUseQueryStore";
+import {galleryStyles} from "./styles/galleryStyles";
 
 export const ShowFiles = () => {
     const [files, setFiles] = useState<any>([])
-    const { storage } = storageStore(
-        (state: { storage: any }) => ({
-            storage: state.storage,
+
+    const {data, status, refetch} = useQuery('firebase', loadImages)
+    const { fireUseQueryStoreProps } = fireUseQueryStore(
+        (state: { fireUseQueryStoreProps: any; }) => ({
+            fireUseQueryStoreProps: state.fireUseQueryStoreProps,
         })
     );
 
-    const currentStorage = useRef(storage)
+    useEffect(() => {
+        refetch()
+    }, [fireUseQueryStoreProps])
 
     useEffect(() => {
-        const fetchImages = async () => {
-            const listRef = ref(storage, 'images');
-            let result = await listAll(listRef);
-            console.log(result)
-            let urlPromises = result.items.map(imageRef => getDownloadURL(imageRef))
-
-            return Promise.all(urlPromises);
+        if (status === 'success') {
+            setFiles(data)
         }
-
-        const loadImages = async () => {
-            const urls = await fetchImages();
-            setFiles(urls);
-        }
-        loadImages();
-        console.log('here')
-    }, [storage]);
+    }, [data, status]);
 
     return (
-        <div>
+        <div style={{...galleryStyles().gallery}}>
             {
                 files.map((image: string | undefined, key: any) => {
-                    return <img src={image} alt={image} width={200} key={key}/>
+                    return <img src={image} alt={image} width={200} height={200} style={{objectFit: 'cover'}} key={key}/>
                 })
             }
         </div>)
